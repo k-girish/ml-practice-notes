@@ -1,1 +1,2 @@
-# ml_dl
+# Machine Learning Practice Examples and Notes
+By Girish Kumar
