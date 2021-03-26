@@ -1,0 +1,60 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,bbm}
+\usepackage{tikz}
+\usepackage{multirow, tabularx}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\E}{\mathop{\mathbb{E}}}
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\redb}[1]{\textcolor{red}{\textbf{#1}}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\newpara}{\leavevmode\newline}
+\newcommand{\hrfullline}{\noindent\makebox[\linewidth]{\rule{\paperwidth}{2pt}}}
+\newcommand{\mcaly}{\mathcal{Y}}
+\newcommand{\xhat}{\hat{x}}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+\title{Python Cheat Sheet}
+\author{Girish Kumar }
+\date{Oct 2020}
+
+\begin{document}
+\maketitle
+
+\setcounter{secnumdepth}{0}
+\tableofcontents
+
+\newpage
+\section{Data Structures}
+
+\subsection{Set}
+\begin{itemize}
+    \item s = set(), unordered, immutable
+    \item item in s = boolean
+    \item s.add(item), s.update(item\_list), s.remove(item), s.clear()
+\end{itemize}
+
+\subsection{Heap}
+\begin{itemize}
+    \item import heapq
+    \item only min heap implementation
+    \item for max heap multiply item by (-1) during push and pop
+    \item initialize a list  as q = []
+    \item heappush(q, item)
+    \item item = heappop(q)
+    \item nlargest, nsmallest(n, q), heapify, merge
+\end{itemize}
+
+\hrfullline
+
+\end{document}
