@@ -1,0 +1,73 @@
+%! Author = girish
+%! Date = 3/26/21
+
+% Preamble
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{hyperref}
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\xhat}{\hat{x}}
+\newcommand{\yhat}{\hat{y}}
+
+% Document
+\begin{document}
+
+    \section{Generative Methods}
+
+    \subsection{Improved training of Wasserstein GANs}
+    \href{https://arxiv.org/pdf/1704.00028.pdf}{Paper Link}
+    \begin{itemize}
+        \item GAN training is unstable because of the gradient clipping
+        \item Proposed Gradient penalty and called WGAN-GP
+        \item Instead of using gradient of discriminator at $x$ (real data) or $\tilde{x}$ (generated data) used that of $\xhat$, where $$\xhat = \epsilon x + (1-\epsilon) \tilde{x}$$ \red{Why?}
+        \item Generator gradient is not penalized \red{(Perhaps because the loss function always is a function of discriminator ?)}
+        \item Added penalty = $$\lambda (||\nabla_{\xhat} \mathcal{D_W} (\xhat))||_2 - 1)^2$$ usually with $\lambda=10$
+        \item Paper show good quality image output for all activation functions
+        \item Data used - LSUN, CIFAR-10
+    \end{itemize}
+
+    \subsubsection{Generating and designing DNA with deep generative models}
+    \href{https://arxiv.org/pdf/1712.06148.pdf}{Paper Link}
+    \begin{itemize}
+        \item Paper claims to be the first to explore generative dl models for DNA
+        \item Main contribution is a proposed joint method, where two networks are trained independently.
+        \item Network (G) - A GAN (more precisely WGAN-GP) is trained to generate data
+        \item Network (P) - A prediction network that predicts about a property(ies) of the data with output a real number
+        \item G can be used to generate new DNA sequences but how do we know they look real DNAs or have desired properties of real DNAs
+        \item Use a "joint" method with architecture: z -> G = G(Z) -> P = p (prediction)
+        \item Now use a "deep dream" type maximizing activation to optimize z to produce the maximum desired p-value
+        \item P network can be changed to achieve different properties
+    \end{itemize}
+
+    \subsection{Papers to read}
+    \begin{itemize}
+        \item \red{Check this, tabular data synthesis using GANs} L. Xu, M. Skoularidou, A. Cuesta-Infante, and K. Veeramachaneni, Modeling tabular data using conditional gan, in Advances in Neural Information Processing Systems, 2019
+        \item \red{Check this, tabular data synthesis using marginals} H. Ping, J. Stoyanovich, and B. Howe, Datasynthesizer: Privacypreserving synthetic datasets, in Proceedings of the 29th International Conference on Scientific and Statistical Database Management, 2017
+        \item J. Zhang, G. Cormode, C. M. Procopiuc, D. Srivastava, and X. Xiao, Privbayes: Private data release via bayesian networks, ACM Trans. Database Syst., 2017
+        \item \red{Check the closeness metric} A. Yale, S. Dash, R. Dutta, I. Guyon, A. Pavao, and K. Bennett, Privacy preserving synthetic health data, in Proceedings of European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning, 2019.
+        \item \red{Check also} A. Yale, S. Dash, R. Dutta, I. Guyon, A. Pavao, and K. P. Bennett, Assessing privacy and quality of synthetic health data, in Proceedings of the Conference on Artificial Intelligence for Data Discovery and Reuse, 2019.
+        \item \red{Check also} E. Choi, S. Biswal, B. Malin, J. Duke, W. F. Stewart, and J. Sun, Generating multi-label discrete patient records using generative adversarial networks, arXiv preprint arXiv:1703.06490, 2017.
+        \item Article 29 Data Protection Working Party - European Commission, Opinion 05/2014 on anonymisation techniques. https://ec.europa.eu/ justice/article-29/documentation/opinion-recommendation/files/2014/wp216 en.pdf, 2014.
+        \item K. Nissim, A. Bembenek, A. Wood, M. Bun, M. Gaboardi, U. Gasser, D. R. OBrien, T. Steinke, and S. Vadhan, Bridging the gap between computer science and legal approaches to privacy, Harv. JL Tech., vol. 31, p. 687, 2017.
+        \item \red{Check below three for evaluation of Image GANs}
+        \item S. O’Brien, M. Groh, and A. Dubey, “Evaluating generative adversarial
+        networks on explicitly parameterized distributions,” CoRR, 2018.
+        \item A. Odena, “Open questions about generative adversarial networks,”
+        Distill, 2019.
+        \item L. Theis, A. van den Oord, and M. Bethge, “A note on the evaluation
+        of generative models,” in International Conference on Learning Representations, ICLR, 2016.
+        \item Hazy, “Safe synthetic data - privacy, utility and control.” https://hazy.
+        com/images/videos/hazy-privacy-explainer.pdf, 2020. Accessed 2020-
+        11-12.
+        \item N.Papernot,M.Abadi,Erlingsson,I.J.Goodfellow,andK.Talwar, “Semi-supervised knowledge transfer for deep learning from private training data,” in International Conference on Learning Representations, ICLR, 2017.
+        \item J. Jordon, J. Yoon, and M. v. d. Schaar, “PATE-GAN: Generating synthetic data with Differential Privacy guarantees,” in International Conference on Learning Representations, ICLR, 2019.
+    \end{itemize}
+
+
+\end{document}
