@@ -567,7 +567,7 @@ Logistic regression suffers from over-fitting if the data is linearly separable.
     \item The objective function is \red{non-convex} and not-smooth(as $c$ is not even a continuous variable?)
 \end{itemize}
 
-\subsubsection{Coordinate Descent}
+\subsubsection{Coordinate Descent (Lloyd's Algorithm)}
 \begin{itemize}
     \item Algorithm
         \begin{itemize}
@@ -582,10 +582,16 @@ Logistic regression suffers from over-fitting if the data is linearly separable.
         \end{itemize}
     \item Convergence
         \begin{itemize}
-            \item Loss function is monotonically (but not strictly) decreasing implying convergence of some sort
             \item Not optimal solution
             \item Initialization matters
         \end{itemize}
+\end{itemize}
+
+\subsection{Disadvantages of K-means}
+\begin{itemize}
+    \item K-means results in convex clusters, thus clustering for an annulus like structure is not possible.
+    \item NP-Hard to solve we have to approximate
+    \item The above objective is written in terms of Euclidean distance but can be changed to generic distance as well.
 \end{itemize}
 
 \subsubsection{Choosing $K$}
@@ -594,6 +600,9 @@ Logistic regression suffers from over-fitting if the data is linearly separable.
     \item Prior knowledge based on subject matter such as splitting a task against $K$ people
     \item Methods that select $K$ by relative decrease in the loss, such as \red{Elbow} method and \red{Silhouette} method
 \end{itemize}
+
+\subsection{Convex relation of K-means}
+\red{TODO}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Weighted K-means %%%%%%%%%%%%%%%%%%
 
@@ -643,6 +652,53 @@ Logistic regression suffers from over-fitting if the data is linearly separable.
             \item Same points as K-means \blue{?}
         \end{itemize}
 \end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Spectral Clustering %%%%%%%%%%%%%%%%%%
+
+\subsection{Spectral Clustering}
+\begin{itemize}
+    \item Convert data-points to graph (vertices and edges) and cluster based on a graph clustering algorithm
+\end{itemize}
+
+\subsubsection{How to construct the graph?}
+\begin{itemize}
+    \item Weighted graph - by using some notion of distance as weight of edge connecting points, such as Gaussian Kernel based $w_{ij} = \exp{\frac{-||x_i-x_j||_2^2}{2\sigma^2}}$
+    Note, the exponential decreases in weight as one moves away from a point.
+    \item Unweighted graph - using some notion of distance as a cutoff to decide whether the points are connected or not, such as $\sigma$- neighbourhood adjacency matrix $w_{ij} = \begin{cases} 0 & ||x_i-x_j||_2 > \sigma \\ 1 & ||x_i-x_j||_2 \leq \sigma \end{cases}$
+    \item \blue{How to decide $\sigma$?}
+\end{itemize}
+
+\subsubsection{Graph Definitions (Laplacian)}
+\begin{itemize}
+    \item \textbf{Degree Matrix (D)}: Diagonal matrix with $D_{ii}=d(i)$ degree of vertex i
+    \item \textbf{Laplace of Graph}: $|V| \times |V|$ matrix defined for undireceted graph as, $L = D-W$ so, $$L_{ij} = \begin{cases} d(i), & i=j\\ -w_{ij}, & i \neq j \end{cases}$$
+    Also, $L = \nabla ^T \nabla$ (hence the name Laplacian) where,
+    \item \textbf{Incidence Matrix ($\nabla$)}: $|E| \times |V|$ matrix. First choose any (but fixed) orientation of edges for undirected graph, then $$\nabla_{ve} = \begin{cases} -1, & \text{e originates from v} \\ 1, & \text{e ends at v} \\ 0, & \text{v not in e} \end{cases}$$
+    \item \textbf{Properties of Laplace Matrix}:
+        \begin{itemize}
+            \item Symmetric since $w_{ij} = w_{ji}$
+            \item Positive Semi-definite since $L = \nabla^T \nabla$
+            \item $0$ is an eigen value corresponding to eigen vector $\mathbbm{1}$
+            \item It is not trivial to define Laplace matrix for directed graph since $W$ is not symmetric.
+            \item Fiedler Eigenvalue( or vector): corresponds to 2nd smallest eigenvalue $\lambda_2$ of $L$. Has fascinating properties - 
+                \begin{itemize}
+                    \item $\lambda_2>0 \iff $ Graph is connected
+                \end{itemize}
+            \item No. of connected components of a graph  = $dim(N(L))$ i.e. dim of nullspace of $L $
+        \end{itemize}
+\end{itemize}
+
+\subsubsection{Spectral Clustering Algorithm}
+\textbf{Key Idea}: Cluster after encoding data points using first k smallest eigen vectors of the Graph Laplacian.
+\begin{itemize}
+    \item Construct an undirected graph from given data points and using $\sigma$- neighbourhood adjacency.
+    \item Compute Laplacian $L=D-W$
+    \item \textbf{Laplacian Eigenmap}:  Compute $k$ \textbf{smallest} eignenvalues and corresponding eigenvectors - $\Phi \in \mathbb{R}^{n \times k} = [\phi_1, \phi_2, \dots \phi_k]$
+    \item \textbf{Rounding Procedure}: Treating the eigenmap as the new data, apply K-means to cluster it
+    \item The Fidler eigenvector itself may be very good in some cases so we are able to represent datapoint using only coordinate very well.
+\end{itemize}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Mixture Model %%%%%%%%%%%%%%%%%%
 
