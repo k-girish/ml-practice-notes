@@ -1,26 +1,15 @@
 \documentclass{article}
+\input{gkmacros}
+
 \usepackage[utf8]{inputenc}
-\usepackage{amsmath,amssymb,bbm}
 \usepackage{tikz}
 \usepackage{multirow, tabularx}
-
-\DeclareMathOperator*{\argmax}{arg\,max}
-\DeclareMathOperator*{\argmin}{arg\,min}
-\DeclareMathOperator*{\E}{\mathop{\mathbb{E}}}
-
-\newcommand{\red}[1]{\textcolor{red}{#1}}
-\newcommand{\redb}[1]{\textcolor{red}{\textbf{#1}}}
-\newcommand{\blue}[1]{\textcolor{blue}{#1}}
-\newcommand{\newpara}{\leavevmode\newline}
-\newcommand{\hrfullline}{\noindent\makebox[\linewidth]{\rule{\paperwidth}{2pt}}}
-\newcommand{\mcaly}{\mathcal{Y}}
-\newcommand{\xhat}{\hat{x}}
 
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
-    filecolor=magenta,      
+    filecolor=magenta,
     urlcolor=blue,
 }
 
@@ -39,9 +28,9 @@
 \begin{itemize}
     \item Some example problems
         \begin{itemize}
-            \item Re-identification of an individual example by using an auxiliary data-set to identify key personal information (Netflix challenge and IMDB)
+            \item \textbf{Linkage Attack}: Re-identification of an individual example by using an auxiliary data-set to identify key personal information (Netflix challenge and IMDB)
             \item Finding Connections by attacking on an anonymous graph
-            \item Identification (or ruling out) of  some characteristics
+            \item \textbf{Reconstruction Attacks}: Identification (or ruling out) of  some characteristics
         \end{itemize}
     \item Some not so good suggestions for privacy
         \begin{itemize}
@@ -50,11 +39,11 @@
             \item Detect when answering is unsafe - refusal can be disclosive
             \item Only publish few complete results of individuals who are ok with public data - works but is that what we really want?
         \end{itemize}
-    \item \redb{Definition}: M gives $\epsilon$ differential privacy if for all pairs of databases $x, x^\prime$ differing in one row, and all subsets of C of possible outputs,
+    \item \textbf{Definition}: M gives $\epsilon$ differential privacy if for all pairs of databases $x, x^\prime$ differing in one row, and all subsets of C of possible outputs,
     $$Pr[M(x) \in C] \leq e^\epsilon Pr[M(x^\prime) \in C]$$
     or equivalently,
     $$ln\left( \frac{Pr[M(x) \in C]}{Pr[M(x^\prime) \in C]} \right) \leq \epsilon$$
-    \item \redb{Why this algorithm is better?}
+    \item \textbf{Why this algorithm is better?}
         \begin{itemize}
             \item Is not just focused on re-identification
             \item Is the same even if some Auxiliary information is available
@@ -62,23 +51,97 @@
             \item Allows unconditional composition
                 $$ln\left( \frac{Pr[M_{1,2}(x) = (r_1, r_2)]}{Pr[M_{1,2}(x^\prime) = (r_1, r_2)]} \right) = ln\left( \frac{Pr[M_1(x) = r_1]Pr[M_2(x) = r_2]}{Pr[M_1(x^\prime) = r_1]Pr[M_2(x^\prime) = r_2]} \right) \leq \epsilon_1+\epsilon_2$$
         \end{itemize}
-    \item \redb{Sensitivity of a function}
+    \item \textbf{Some important points}
+    \begin{itemize}
+        \item Why $e^\epsilon$? - Allows for composition
+        \item Why multiplicative bound? - Other definition are not as efficient definition of privacy \blue{Why?}
+        \item What does change in one row means when considering neighbouring datasets in the definition? It could mean one of the two things-
+            \begin{itemize}
+                \item Unbounded DP: One data point is not present in the other dataset.
+                \item Bounded DP: One data point is replaced by another one. This is similar to the bounded DP except that the factor $\epsilon$ can be thought of here being equivalent to $2\epsilon$ for the unbounded case.
+            \end{itemize}
+            Theoretically they are not that different, but implementation wise need to be careful when using $\epsilon$ to calculate other things such as required data-points to achieve that particular budget.
+        \item What is a good $\epsilon$? - Typically about $0.1 \leq \epsilon \leq 5$ but depends on the situation.
+    \end{itemize}
+    \item \textbf{What DP doesn't allow?}
+        \begin{itemize}
+            \item Although individual statistic are protected, population statistics may not be
+            \item Consequently, not for inference of individual statistics
+            \item Information theoretical bound and not computational one (such as RSA)
+        \end{itemize}
+    \item \textbf{Sensitivity of a function}
         $$\Delta f = \max_{x, x^\prime} \Vert f(x)-f(x^\prime) \Vert_1$$
         where $x$ and $x^\prime$ differ only by one row
 \end{itemize}
 
 \subsection{Achieve Differential Privacy}
+\subsubsection{Randomized Response}
+\begin{itemize}
+    \item Assume for a boolean data with true value $X$, the curator (or individual in the case of localized DP) will respond with $Y$, such that for some $0 \leq \alpha \leq 1/2$,
+    $$Y = \begin{cases} X, & \text{w.p. } \frac{1}{2}+\alpha \\ 1-X, & \text{w.p. } \frac{1}{2}-\alpha \end{cases}$$
+    \item $\alpha=0 \Rightarrow$ complete privacy, no utility
+    \item $\alpha=1/2 \Rightarrow$ no privacy, complete utility
+    \item For a sequence of data points $(X_1, X_2, \dots, X_n)$ this is DP with $\epsilon = \ln{\left(\frac{\frac{1}{2}+\alpha}{\frac{1}{2}-\alpha}\right)} \approx O(\alpha)$
+    \item How to measure the accuracy of the algorithm? - One thing we can do is how accurately do we estimate the population mean? We have,
+    \begin{align*}
+        \expect{Y} &= X(\frac{1}{2} + \alpha) + (1-X) (\frac{1}{2} - \alpha)\\
+        &= 2\alpha X + \frac{1}{2} - \alpha
+    \end{align*}
+    Hence an unbiased estimator for $X$ is $Z = \frac{Y+\alpha - 1/2}{2\alpha}$
+    Moreover,
+    \begin{align*}
+        \var{Z} &= \frac{1}{4\alpha^2} \var{Y} \leq \frac{1}{16 \alpha^2}
+    \end{align*}
+    So, for a sequence of values $X = (X_1, X_2, \dots, X_n)$ with randomized response $Y = (Y_1, Y_2, \dots, Y_n)$ we have the estimate of expectation as,
+    \begin{align*}
+        \hat \mu &= \frac{1}{n} \sum_{i=1}^n Z_i\\
+        \Rightarrow \var{\hat\mu} &\leq \frac{1}{16\alpha^2 n^2} (n) = \frac{1}{16 \alpha^2 n}
+    \end{align*}
+    By Chebyshev's inequality,
+    $$|\hat\mu - \mu| \leq O(\frac{1}{\alpha \sqrt{n}})$$
+    \blue{WHY?}
+\end{itemize}
 
-\subsubsection{Laplace Distribution}
+
+\subsubsection{Laplace Mechanism}
 
 \begin{itemize}
     \item About Laplace distribution
         \begin{itemize}
             \item Laplace distribution pdf with mean $\mu$ and variance $2b^2$ is given by
                 $$Laplace(\mu,b) = f(x\mid \mu ,b) ={\frac  {1}{2b}}\exp \left(-{\frac  {|x-\mu |}{b}}\right)$$
+                \item Double sided exponential distribution
             \item Tail is fatter than Gaussian and the peak is pointy, key difference is $L_1$ norm instead of $L_2$ norm
         \end{itemize}
-    \item To achieve $\epsilon$ differential privacy in the output of a query $f$ of sensitivity $\Delta f$, add noise sampled from the distribution $Lap(\Delta f / \epsilon)$
+    \item To achieve $\epsilon$ differential privacy in the output of a query $f$ of sensitivity $\Delta$, add noise sampled from the distribution $Lap(\Delta / \epsilon)$. Let us call this as the output $M$ of our DP algorithm.
+    \item Algorithm is $\epsilon$-DP - Let $X$ and $Y$ denote neighbouring datasets and $f: \mathbb{R}^n \to \mathbb{R}^k$. Let $P_{M(X)}(z)$ denote the probability density for $M(X)=z$, then,
+        \begin{align*}
+            \frac{P_{M(X)}(z)}{P_{M(Y)}(z)} &= \frac{\prod_{i=1}^k M(X)_i=z_i}{\prod_{i=1}^k M(Y)_i=z_i}\\
+            &= \frac{\prod_{i=1}^k \exp{(-\frac{\epsilon |f(X)_i - z_i|}{\Delta}) }}{\prod_{i=1}^k \exp{(-\frac{\epsilon |f(Y)_i - z_i|}{\Delta}) }}
+            = \frac{ \exp{( \sum_{i=1}^k -\frac{\epsilon |f(X)_i - z_i|}{\Delta}) }}{ \exp{( \sum_{i=1}^k -\frac{\epsilon |f(Y)_i - z_i|}{\Delta}) }}\\
+            &= \exp{\left( \frac{\epsilon}{\Delta} \sum_{i=1}^k \left(  |f(Y)_i - z_i| - |f(X)_i - z_i| \right) \right)}\\
+            &\leq \exp{\left( \frac{\epsilon}{\Delta} \sum_{i=1}^k \left(  |f(Y)_i - f(X)_i| \right) \right)}\\
+            &\leq \exp{ \left(\frac{\epsilon}{\Delta} \Delta\right)} = e^\epsilon\\
+        \end{align*}
+    \item Accuracy is of the order $O(\frac{\Delta}{\epsilon})$:
+        \begin{align*}
+            \expect{M(X)} &= \expect{f(X) + Lap(\Delta/\epsilon)} = f(X)\\
+            \var{M(X)} &= \var{Lap(\Delta/ \epsilon)} = \frac{2 \Delta^2}{\epsilon^2}\\
+            M(X)-f(X) &\sim Lap(\Delta/\epsilon)\\
+            \Rightarrow \prob{|M(X)-f(X)| > k\frac{\Delta}{\epsilon}} &= e^{-k}\\
+            \Rightarrow \prob{|M(X)-f(X)| > \ln{(1/k)}\frac{\Delta}{\epsilon}} &= k\\
+            \Rightarrow |M(X)-f(X)| &\leq \ln{(1/k)}\frac{\Delta}{\epsilon} \text{ w.p. } 1-k\\
+        \end{align*}
+    \item Example 1
+        \begin{itemize}
+            \item Find average of a set of booleans $f(X) = \frac{1}{n} \sum_{i=1}^n X_i$
+            \item $\Delta f = \frac{1}{n}$, add noise $\sim Lap(\frac{1}{n\epsilon})$
+            \item Let $X, \Xprime$ differ at $j^{th}$ value,
+                \begin{align*}
+                    \prob{\Xprime = c}
+                \end{align*}
+            \item $\prob{}$
+        \end{itemize}
     \item Example 1
         \begin{itemize}
             \item How many in the database $\dots$ ?
