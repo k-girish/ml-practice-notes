@@ -690,6 +690,33 @@ Logistic regression suffers from over-fitting if the data is linearly separable.
 \end{itemize}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Diffusion Maps %%%%%%%%%%%%%%%%%%
+\subsection{Diffusion Maps}
+\subsubsection{Random Walk on Graphs}
+Consider a Graph $G=(V,E)$ with weight matrix $W=[w_{i,j}]$. We construct a random walk $X_t$ on the vertices of the graph as follows:
+\begin{itemize}
+    \item $\prob{X_{t+1} = v_j | X_{t}=v_i} = \frac{w_{ij}}{d_i}$, where $d_i = \sum_{k=1}^n w_{ik}$ is the degree of vertex $v_i$
+    \item This process is a Markov Process since $X_{t+1}$ only depends on $X_t$
+    \item \textbf{Markov Matrix ($P$)}
+    \begin{itemize}
+        \item $P_{ij} = \prob{X_{t+1} = v_j | X_{t}=v_i} = \frac{w_{ij}}{d_i}$
+        \item $P = D^{-1}W$, where $D$ is the diagonal degree matrix with $D_{ii}=d_i$
+        \item $P\mathbf{1} = \mathbf{1}$ by definition and hence $1$ is an eigenvalue corresponding to the eigenvector $\mathbf{1}$
+        \item $P$ is usually not symmetric
+    \end{itemize}
+    \item Biorthogonal system of the probability matrix
+    \begin{itemize}
+        \item $S = D^{1/2}PD^{-1/2}$ is similar to $P$ by definition of similar matrices
+        \item Also $S$ is symmetric since, $S=  D^{1/2}D^{-1}WD^{-1/2} = D^{-1/2}WD^{-1/2}$
+        \item Consider the eigenvalue decomposition of $S$ as $S = V\Lambda V^T$
+        \item $P = D^{-1/2}SD^{1/2} = D^{-1/2}V\Lambda (D^{1/2}V)^T = \Phi \Lambda \Psi^T$, where $\Phi = D^{-1/2}V$ is the left eigenvector system and $\Psi = D^{1/2}V$ is the right eigenvector system of P
+        \item Note, $\Phi_i^T \Psi_j = \delta_{ij}$
+        \item $P\Phi_i = \Phi \Lambda \Psi^T \Phi_i = \lambda_{i} \Phi_i$, hence $\Phi$ is the right eigenvector of $P$
+        \item $\Psi_i^TP = \Psi_i^T\Phi \Lambda \Psi^T = \lambda_{i} \Psi_i$, hence $\Psi$ is the left eigenvector of $P$
+        \item Also, $P = \sum_{i=1}^n \lambda_i \Phi_i\Psi_i^T$
+        \item And, $P^t = \sum_{i=1}^n \lambda_i^t \Phi_i\Psi_i^T$
+    \end{itemize}
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% Mixture Model %%%%%%%%%%%%%%%%%%
 
