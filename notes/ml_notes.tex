@@ -592,6 +592,18 @@ Logistic regression suffers from over-fitting if the data is linearly separable.
     \item Methods that select $K$ by relative decrease in the loss, such as \red{Elbow} method and \red{Silhouette} method
 \end{itemize}
 
+\subsubsection{Initialization}
+\begin{itemize}
+    \item Random selection of k data points as the cluster centroid
+    \item Random partition of data-points into clusters
+    \item Farthest distance points -
+    \begin{itemize}
+        \item First centroid is any random data point
+        \item Second centroid is the point which from given data points which is farthest from the first centroid
+        \item Similarly, keep choosing point farthest from others for subsequent centroid
+    \end{itemize}
+\end{itemize}
+
 \subsection{Convex relation of K-means}
 \red{TODO}
 

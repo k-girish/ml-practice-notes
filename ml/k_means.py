@@ -1,4 +1,6 @@
 import numpy as np
+from tqdm.notebook import tqdm
+from sklearn.metrics.pairwise import euclidean_distances
 
 
 # Input is the data x and no. of centers k
@@ -8,13 +10,23 @@ def k_means(x, k=3, max_iter=10, init_method='random'):
     c = np.zeros(n)
 
     # Initialize centroids mu
-    # k random indices from uniform of range n
-    # TODO: include the init methods
-    mu_indices = np.random.choice(n, k)
-    mu = x[mu_indices, :]
+    if init_method == 'farthest':
+        mu = np.zeros((k, p))
+        init_indices = []
+        mu[0, :] = x[np.random.choice(n, 1), :].reshape(-1)
+        for k_idx in range(1, k):
+            dists = euclidean_distances(x, mu[:k_idx, :])
+            dists = dists.sum(axis=1)
+            max_idx = np.argmax(dists)
+            init_indices.append(max_idx)
+            mu[k_idx, :] = x[max_idx, :]
+
+    else:
+        init_indices = np.random.choice(n, k)
+        mu = x[init_indices, :]
 
     # Iterate for some max-iterations
-    for iter_idx in range(max_iter):
+    for iter_idx in tqdm(range(max_iter), desc='k-means iterations'):
 
         # Update the cluster of all the points based on the closeness
         for x_idx in range(n):
