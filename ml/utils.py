@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy.linalg import eigh
 
 # Given a list of cluster indices for the data points, find the best matching label corresponding to the cluster index
 def find_cluster_label_dict(c_indices, labels):
@@ -20,3 +20,7 @@ def find_cluster_labels(c_indices, labels):
     for c_idx in c_indices:
         label_pred.append(cluster_label_dict[c_idx])
     return label_pred
+
+def find_k_smallest_eigenvectors(arr, k=2, start=0):
+    _, ans = eigh(arr, subset_by_index=[start, k + start - 1])
+    return ans

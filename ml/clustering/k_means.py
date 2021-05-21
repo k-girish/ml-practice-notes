@@ -5,7 +5,7 @@ from sklearn.metrics.pairwise import euclidean_distances
 
 # Input is the data x and no. of centers k
 # Output centroid for all the centers and index of cluster for each of the data
-def k_means(x, k=3, max_iter=10, init_method='random'):
+def k_means(x, k=3, max_iter=10, init_method='random', disable_tqdm=True):
     n, p = x.shape
     c = np.zeros(n)
 
@@ -26,7 +26,7 @@ def k_means(x, k=3, max_iter=10, init_method='random'):
         mu = x[init_indices, :]
 
     # Iterate for some max-iterations
-    for iter_idx in tqdm(range(max_iter), desc='k-means iterations'):
+    for iter_idx in tqdm(range(max_iter), desc='k-means iterations', disable=disable_tqdm):
 
         # Update the cluster of all the points based on the closeness
         for x_idx in range(n):
@@ -35,6 +35,8 @@ def k_means(x, k=3, max_iter=10, init_method='random'):
 
         # Update the centroids as the average of all the points within their clusters
         for mu_idx in range(k):
-            mu[mu_idx, :] = np.average(x[(c == mu_idx), :], axis=0)
+            temp = x[(c == mu_idx), :]
+            if len(temp) > 0:
+                mu[mu_idx, :] = np.mean(temp, axis=0)
 
     return mu, c
